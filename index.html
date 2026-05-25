@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Smart Parking System</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    background:#eef2f7;
+    padding:20px;
+}
+
+header{
+    background:#1b3c59;
+    color:white;
+    padding:20px;
+    border-radius:12px;
+    text-align:center;
+    margin-bottom:25px;
+}
+
+header h1{
+    margin-bottom:10px;
+}
+
+.location{
+    font-size:18px;
+}
+
+.container{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    gap:20px;
+}
+
+.slot{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.slot-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.status{
+    width:22px;
+    height:22px;
+    border-radius:50%;
+}
+
+.available{
+    background:green;
+}
+
+.booked{
+    background:red;
+}
+
+.future{
+    opacity:0.7;
+}
+
+.info{
+    margin-top:15px;
+    background:#f5f5f5;
+    padding:12px;
+    border-radius:10px;
+    font-size:14px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin-top:12px;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:12px;
+    border:none;
+    border-radius:8px;
+    background:#1976d2;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#125ea7;
+}
+
+.legend{
+    margin-top:30px;
+    background:white;
+    padding:20px;
+    border-radius:12px;
+}
+
+.legend-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:10px;
+}
+
+.circle{
+    width:18px;
+    height:18px;
+    border-radius:50%;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Smart Parking Booking System</h1>
+
+    <div class="location">
+        Venue:
+        :contentReference[oaicite:0]{index=0}
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- MAIN SLOT -->
+    <div class="slot">
+
+        <div class="slot-header">
+            <h2>Slot A1</h2>
+            <div id="slotStatus" class="status available"></div>
+        </div>
+
+        <p>Main Parking Slot Connected to Ultrasonic Sensor</p>
+
+        <div class="info" id="slotInfo">
+            Slot Available
+        </div>
+
+        <input type="text" id="name" placeholder="Enter Your Name">
+
+        <input type="datetime-local" id="startTime">
+
+        <input type="datetime-local" id="endTime">
+
+        <button onclick="bookSlot()">Book Slot</button>
+
+    </div>
+
+    <!-- EXTRA SLOT 1 -->
+    <div class="slot future">
+
+        <div class="slot-header">
+            <h2>Slot B1</h2>
+            <div class="status available"></div>
+        </div>
+
+        <p>Future Expansion Slot</p>
+
+        <div class="info">
+            Not Connected Yet
+        </div>
+
+    </div>
+
+    <!-- EXTRA SLOT 2 -->
+    <div class="slot future">
+
+        <div class="slot-header">
+            <h2>Slot C1</h2>
+            <div class="status available"></div>
+        </div>
+
+        <p>Future Expansion Slot</p>
+
+        <div class="info">
+            Not Connected Yet
+        </div>
+
+    </div>
+
+</div>
+
+<div class="legend">
+
+    <h3>Parking Status</h3>
+
+    <div class="legend-item">
+        <div class="circle" style="background:green;"></div>
+        Available
+    </div>
+
+    <div class="legend-item">
+        <div class="circle" style="background:red;"></div>
+        Occupied / Booked
+    </div>
+
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+    getDatabase,
+    ref,
+    set,
+    onValue
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+
+// FIREBASE CONFIG
+const firebaseConfig = {
+    apiKey: "AIzaSyBWgeAoKQM_kIX7ebjnIRZwiHENIGtpNAw",
+    authDomain: "my-last-car-parking-system.firebaseapp.com",
+    databaseURL: "https://my-last-car-parking-system-default-rtdb.firebaseio.com",
+    projectId: "my-last-car-parking-system",
+    storageBucket: "my-last-car-parking-system.firebasestorage.app",
+    messagingSenderId: "976404998203",
+    appId: "1:976404998203:web:ffb313b50e3c10f5b5541e"
+};
+
+
+// INITIALIZE FIREBASE
+const app = initializeApp(firebaseConfig);
+
+const db = getDatabase(app);
+
+
+// HTML ELEMENTS
+const slotStatus = document.getElementById("slotStatus");
+
+const slotInfo = document.getElementById("slotInfo");
+
+
+// BOOK SLOT FUNCTION
+window.bookSlot = function(){
+
+    const name = document.getElementById("name").value;
+
+    const startTime = document.getElementById("startTime").value;
+
+    const endTime = document.getElementById("endTime").value;
+
+
+    if(name === "" || startTime === "" || endTime === ""){
+
+        alert("Please fill all fields");
+
+        return;
+    }
+
+
+    if(startTime >= endTime){
+
+        alert("End time must be after start time");
+
+        return;
+    }
+
+
+    // SAVE TO FIREBASE
+    set(ref(db, "parkingSlots/slotA1"), {
+
+        status: "booked",
+
+        bookedBy: name,
+
+        startTime: startTime,
+
+        endTime: endTime
+
+    });
+
+    alert("Slot Successfully Booked");
+
+};
+
+
+// READ LIVE DATA
+const slotRef = ref(db, "parkingSlots/slotA1");
+
+onValue(slotRef, (snapshot) => {
+
+    const data = snapshot.val();
+
+    if(data){
+
+        const now = new Date();
+
+        const start = new Date(data.startTime);
+
+        const end = new Date(data.endTime);
+
+
+        // CHECK IF BOOKING IS ACTIVE
+        if(now >= start && now <= end){
+
+            slotStatus.classList.remove("available");
+
+            slotStatus.classList.add("booked");
+
+
+            slotInfo.innerHTML = `
+                <strong>BOOKED</strong><br><br>
+
+                Client: ${data.bookedBy}<br><br>
+
+                From:<br>
+                ${data.startTime}<br><br>
+
+                To:<br>
+                ${data.endTime}
+            `;
+
+        }else{
+
+            slotStatus.classList.remove("booked");
+
+            slotStatus.classList.add("available");
+
+            slotInfo.innerHTML = `
+                <strong>AVAILABLE NOW</strong><br><br>
+
+                Upcoming Booking:<br><br>
+
+                ${data.bookedBy}<br><br>
+
+                ${data.startTime}<br>
+
+                TO<br>
+
+                ${data.endTime}
+            `;
+        }
+
+    }else{
+
+        slotStatus.classList.remove("booked");
+
+        slotStatus.classList.add("available");
+
+        slotInfo.innerHTML = "Slot Available";
+    }
+
+});
+
+</script>
+
+</body>
+</html>
