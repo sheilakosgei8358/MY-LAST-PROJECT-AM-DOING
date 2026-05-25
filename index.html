@@ -167,21 +167,21 @@ button:hover{
     <h1>Smart Parking Booking System</h1>
 
     <div class="location">
-        📍 Kenyatta Avenue, Nairobi
+        📍 Kenyatta Avenue, Nakuru
     </div>
 
 </header>
 
 
-<!-- GOOGLE MAP -->
+<!-- GOOGLE MAP WITH DIRECTIONS -->
 <div class="map-container">
 
-    <h2>Parking Location</h2>
+    <h2>Directions to Kenyatta Avenue, Nakuru</h2>
 
     <iframe
-        src="https://www.google.com/maps?q=Kenyatta+Avenue+Nairobi&output=embed"
+        src="https://maps.google.com/maps?q=Kenyatta%20Avenue%20Nakuru&t=&z=15&ie=UTF8&iwloc=&output=embed"
         width="100%"
-        height="350"
+        height="400"
         style="border:0; border-radius:15px;"
         allowfullscreen=""
         loading="lazy">
@@ -372,7 +372,7 @@ window.bookSlot = function(){
     }
 
 
-    // SAVE DATA TO FIREBASE
+    // SAVE TO FIREBASE
     set(ref(db, "parkingSlots/slotA1"), {
 
         status: "booked",
@@ -457,7 +457,6 @@ onValue(slotRef, (snapshot) => {
                 ${data.endTime}
 
             `;
-
         }
 
     }
