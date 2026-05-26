@@ -240,6 +240,8 @@ Smart Parking IoT System using Firebase + ESP32
 
 <script type="module">
 
+
+
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
@@ -248,9 +250,232 @@ getDatabase,
 ref,
 set,
 onValue,
-remove
+remove,
+get
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+// FIREBASE CONFIG
+const firebaseConfig = {
+
+apiKey: "AIzaSyBWgeAoKQM_kIX7ebjnIRZwiHENIGtpNAw",
+
+authDomain: "my-last-car-parking-system.firebaseapp.com",
+
+databaseURL: "https://my-last-car-parking-system-default-rtdb.firebaseio.com",
+
+projectId: "my-last-car-parking-system",
+
+storageBucket: "my-last-car-parking-system.firebasestorage.app",
+
+messagingSenderId: "976404998203",
+
+appId: "1:976404998203:web:ffb313b50e3c10f5b5541e"
+
+};
+
+// INITIALIZE FIREBASE
+const app = initializeApp(firebaseConfig);
+
+const db = getDatabase(app);
+
+// HTML ELEMENTS
+const slotStatus = document.getElementById("slotStatus");
+
+const slotInfo = document.getElementById("slotInfo");
+
+const slotRef = ref(db, "parkingSlots/slotA1");
+
+// BOOK SLOT
+window.bookSlot = async function(){
+
+const name = document.getElementById("name").value;
+
+const startTime = document.getElementById("startTime").value;
+
+const endTime = document.getElementById("endTime").value;
+
+if(name === "" || startTime === "" || endTime === ""){
+
+alert("Please fill all fields");
+
+return;
+}
+
+if(startTime >= endTime){
+
+alert("End time must be after start time");
+
+return;
+}
+
+// CHECK IF SLOT ALREADY BOOKED
+const snapshot = await get(slotRef);
+
+if(snapshot.exists()){
+
+const data = snapshot.val();
+
+const now = new Date();
+
+const bookingEnd = new Date(data.endTime);
+
+// ACTIVE BOOKING EXISTS
+if(now < bookingEnd){
+
+alert("This parking slot is already booked");
+
+return;
+}
+
+}
+
+// SAVE TO FIREBASE
+await set(slotRef, {
+
+status: "booked",
+
+bookedBy: name,
+
+startTime: startTime,
+
+endTime: endTime,
+
+bookingCreatedAt: new Date().toISOString()
+
+});
+
+alert("Parking Slot Booked Successfully");
+
+};
+
+// LIVE DATA
+onValue(slotRef, (snapshot) => {
+
+const data = snapshot.val();
+
+if(data){
+
+const now = new Date();
+
+const start = new Date(data.startTime);
+
+const end = new Date(data.endTime);
+
+// AUTO EXPIRE IF USER NEVER ARRIVED
+if(now > start && data.status === "booked"){
+
+const graceMinutes = 5;
+
+const lateLimit = new Date(start.getTime() + graceMinutes * 60000);
+
+if(now > lateLimit){
+
+remove(slotRef);
+
+slotStatus.className = "status available";
+
+slotInfo.innerHTML = "Slot Available";
+
+return;
+}
+
+}
+
+// BOOKING FINISHED
+if(now > end && data.status !== "occupied"){
+
+remove(slotRef);
+
+slotStatus.className = "status available";
+
+slotInfo.innerHTML = "Slot Available";
+
+return;
+}
+
+// BOOKED STATUS
+if(data.status === "booked"){
+
+slotStatus.className = "status booked";
+
+// COUNTDOWN TIMER
+const remaining = end - now;
+
+const hours = Math.floor(remaining / (1000 * 60 * 60));
+
+const minutes = Math.floor(
+(remaining % (1000 * 60 * 60)) / (1000 * 60)
+);
+
+const seconds = Math.floor(
+(remaining % (1000 * 60)) / 1000
+);
+
+slotInfo.innerHTML = `
+
+<strong>BOOKED</strong><br><br>
+
+Client: ${data.bookedBy}<br><br>
+
+From:<br>
+${data.startTime}<br><br>
+
+To:<br>
+${data.endTime}<br><br>
+
+⏳ Time Remaining:<br>
+${hours}h ${minutes}m ${seconds}s
+
+`;
+
+}
+
+// OCCUPIED
+else if(data.status === "occupied"){
+
+slotStatus.className = "status occupied";
+
+slotInfo.innerHTML = `
+
+<strong>OCCUPIED</strong><br><br>
+
+Vehicle Has Entered Parking Slot
+
+`;
+
+}
+
+// AVAILABLE
+else{
+
+slotStatus.className = "status available";
+
+slotInfo.innerHTML = "Slot Available";
+
+}
+
+}
+
+// NO DATA
+else{
+
+slotStatus.className = "status available";
+
+slotInfo.innerHTML = "Slot Available";
+
+}
+
+});
+
+// LIVE COUNTDOWN REFRESH
+setInterval(() => {
+
+onValue(slotRef, () => {});
+
+}, 1000);
+
+</script>
 
 // FIREBASE CONFIG
 const firebaseConfig = {
