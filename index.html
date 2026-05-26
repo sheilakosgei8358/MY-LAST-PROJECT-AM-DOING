@@ -20,7 +20,6 @@ body{
     padding:20px;
 }
 
-/* HEADER */
 header{
     background:#173b5c;
     color:white;
@@ -38,16 +37,14 @@ header h1{
     font-size:18px;
 }
 
-/* MAP */
- iframe{
-      width:100%;
-      height:300px;
-      border:none;
-      border-radius:10px;
-      margin-top:15px;
-    }
+iframe{
+    width:100%;
+    height:300px;
+    border:none;
+    border-radius:10px;
+    margin-top:15px;
+}
 
-/* PARKING SLOTS */
 .container{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
@@ -82,8 +79,8 @@ header h1{
     background:red;
 }
 
-.future{
-    opacity:0.8;
+.occupied{
+    background:orange;
 }
 
 .info{
@@ -95,7 +92,6 @@ header h1{
     line-height:1.6;
 }
 
-/* INPUTS */
 input{
     width:100%;
     padding:12px;
@@ -121,7 +117,6 @@ button:hover{
     background:#125ea7;
 }
 
-/* LEGEND */
 .legend{
     margin-top:30px;
     background:white;
@@ -143,7 +138,6 @@ button:hover{
     border-radius:50%;
 }
 
-/* FOOTER */
 .footer{
     margin-top:30px;
     text-align:center;
@@ -156,7 +150,6 @@ button:hover{
 
 <body>
 
-<!-- HEADER -->
 <header>
 
     <h1>Smart Parking Booking System</h1>
@@ -167,301 +160,244 @@ button:hover{
 
 </header>
 
+<h2 style="margin-top:40px;">Parking Location</h2>
 
-<!-- GOOGLE MAP SECTION -->
+<p><b>Location:</b> Nairobi CBD, Kenya</p>
 
+<p><b>Direction:</b> Near Kenyatta Avenue, City Center</p>
 
-    <h2 style="margin-top:40px;">Parking Location</h2>
+<iframe
+src="https://maps.google.com/maps?q=Nairobi%20CBD%20Kenya&t=&z=15&ie=UTF8&iwloc=&output=embed">
+</iframe>
 
-    <p><b>Location:</b> Nairobi CBD, Kenya</p>
-    <p><b>Direction:</b> Near Kenyatta Avenue, City Center</p>
-
-    <iframe
-      src="https://maps.google.com/maps?q=Nairobi%20CBD%20Kenya&t=&z=15&ie=UTF8&iwloc=&output=embed">
-    </iframe>
-
-  </div>
-
-<!-- PARKING SLOTS -->
 <div class="container">
 
-    <!-- MAIN SLOT -->
-    <div class="slot">
+<div class="slot">
 
-        <div class="slot-header">
+<div class="slot-header">
 
-            <h2>Slot A1</h2>
+<h2>Slot A1</h2>
 
-            <div id="slotStatus" class="status available"></div>
-
-        </div>
-
-        <p>Main Active Parking Slot</p>
-
-        <div class="info" id="slotInfo">
-            Slot Available
-        </div>
-
-        <input type="text" id="name" placeholder="Enter Your Name">
-
-        <input type="datetime-local" id="startTime">
-
-        <input type="datetime-local" id="endTime">
-
-        <button onclick="bookSlot()">
-            Book Parking Slot
-        </button>
-
-    </div>
-
-
-    <!-- EXTRA SLOT -->
-    <div class="slot future">
-
-        <div class="slot-header">
-
-            <h2>Slot B1</h2>
-
-            <div class="status available"></div>
-
-        </div>
-
-        <p>Future Expansion Slot</p>
-
-        <div class="info">
-            Not Connected Yet
-        </div>
-
-    </div>
-
-
-    <!-- EXTRA SLOT -->
-    <div class="slot future">
-
-        <div class="slot-header">
-
-            <h2>Slot C1</h2>
-
-            <div class="status available"></div>
-
-        </div>
-
-        <p>Future Expansion Slot</p>
-
-        <div class="info">
-            Not Connected Yet
-        </div>
-
-    </div>
+<div id="slotStatus" class="status available"></div>
 
 </div>
 
+<p>Main Active Parking Slot</p>
 
-<!-- LEGEND -->
+<div class="info" id="slotInfo">
+Slot Available
+</div>
+
+<input type="text" id="name" placeholder="Enter Your Name">
+
+<input type="datetime-local" id="startTime">
+
+<input type="datetime-local" id="endTime">
+
+<button onclick="bookSlot()">
+Book Parking Slot
+</button>
+
+</div>
+
+</div>
+
 <div class="legend">
 
-    <h3>Parking Status</h3>
+<h3>Parking Status</h3>
 
-    <div class="legend-item">
+<div class="legend-item">
 
-        <div class="circle" style="background:green;"></div>
+<div class="circle" style="background:green;"></div>
 
-        Available
-
-    </div>
-
-    <div class="legend-item">
-
-        <div class="circle" style="background:red;"></div>
-
-        Occupied / Booked
-
-    </div>
+Available
 
 </div>
 
+<div class="legend-item">
 
-<!-- FOOTER -->
+<div class="circle" style="background:red;"></div>
+
+Booked
+
+</div>
+
+<div class="legend-item">
+
+<div class="circle" style="background:orange;"></div>
+
+Occupied
+
+</div>
+
+</div>
+
 <div class="footer">
 
-    Smart Parking IoT System using Firebase + ESP32
+Smart Parking IoT System using Firebase + ESP32
 
 </div>
 
-
-
-<!-- FIREBASE -->
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
-    getDatabase,
-    ref,
-    set,
-    onValue
+getDatabase,
+ref,
+set,
+onValue,
+remove
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-
 
 // FIREBASE CONFIG
 const firebaseConfig = {
 
-    apiKey: "AIzaSyBWgeAoKQM_kIX7ebjnIRZwiHENIGtpNAw",
+apiKey: "AIzaSyBWgeAoKQM_kIX7ebjnIRZwiHENIGtpNAw",
 
-    authDomain: "my-last-car-parking-system.firebaseapp.com",
+authDomain: "my-last-car-parking-system.firebaseapp.com",
 
-    databaseURL: "https://my-last-car-parking-system-default-rtdb.firebaseio.com",
+databaseURL: "https://my-last-car-parking-system-default-rtdb.firebaseio.com",
 
-    projectId: "my-last-car-parking-system",
+projectId: "my-last-car-parking-system",
 
-    storageBucket: "my-last-car-parking-system.firebasestorage.app",
+storageBucket: "my-last-car-parking-system.firebasestorage.app",
 
-    messagingSenderId: "976404998203",
+messagingSenderId: "976404998203",
 
-    appId: "1:976404998203:web:ffb313b50e3c10f5b5541e"
+appId: "1:976404998203:web:ffb313b50e3c10f5b5541e"
 
 };
-
 
 // INITIALIZE FIREBASE
 const app = initializeApp(firebaseConfig);
 
 const db = getDatabase(app);
 
-
 // HTML ELEMENTS
 const slotStatus = document.getElementById("slotStatus");
 
 const slotInfo = document.getElementById("slotInfo");
 
-
-
 // BOOK SLOT
 window.bookSlot = function(){
 
-    const name = document.getElementById("name").value;
+const name = document.getElementById("name").value;
 
-    const startTime = document.getElementById("startTime").value;
+const startTime = document.getElementById("startTime").value;
 
-    const endTime = document.getElementById("endTime").value;
+const endTime = document.getElementById("endTime").value;
 
+if(name === "" || startTime === "" || endTime === ""){
 
-    if(name === "" || startTime === "" || endTime === ""){
+alert("Please fill all fields");
 
-        alert("Please fill all fields");
+return;
+}
 
-        return;
-    }
+if(startTime >= endTime){
 
+alert("End time must be after start time");
 
-    if(startTime >= endTime){
+return;
+}
 
-        alert("End time must be after start time");
+// SAVE TO FIREBASE
+set(ref(db, "parkingSlots/slotA1"), {
 
-        return;
-    }
+status: "booked",
 
+bookedBy: name,
 
-    // SAVE TO FIREBASE
-    set(ref(db, "parkingSlots/slotA1"), {
+startTime: startTime,
 
-        status: "booked",
+endTime: endTime
 
-        bookedBy: name,
+});
 
-        startTime: startTime,
-
-        endTime: endTime
-
-    });
-
-    alert("Parking Slot Booked Successfully");
+alert("Parking Slot Booked Successfully");
 
 };
 
-
-
-
-// READ DATA LIVE
+// LIVE DATA
 const slotRef = ref(db, "parkingSlots/slotA1");
-
 
 onValue(slotRef, (snapshot) => {
 
-    const data = snapshot.val();
+const data = snapshot.val();
 
+if(data){
 
-    if(data){
+const now = new Date();
 
-        const now = new Date();
+const start = new Date(data.startTime);
 
-        const start = new Date(data.startTime);
+const end = new Date(data.endTime);
 
-        const end = new Date(data.endTime);
+// EXPIRED BOOKING
+if(now > end && data.status !== "occupied"){
 
+remove(ref(db, "parkingSlots/slotA1"));
 
-        // ACTIVE BOOKING
-        if(now >= start && now <= end){
+slotStatus.className = "status available";
 
-            slotStatus.classList.remove("available");
+slotInfo.innerHTML = "Slot Available";
 
-            slotStatus.classList.add("booked");
+return;
+}
 
+// BOOKED
+if(data.status === "booked"){
 
-            slotInfo.innerHTML = `
+slotStatus.className = "status booked";
 
-                <strong>BOOKED</strong><br><br>
+slotInfo.innerHTML = `
 
-                Client: ${data.bookedBy}<br><br>
+<strong>BOOKED</strong><br><br>
 
-                From:<br>
-                ${data.startTime}<br><br>
+Client: ${data.bookedBy}<br><br>
 
-                To:<br>
-                ${data.endTime}
+From:<br>
+${data.startTime}<br><br>
 
-            `;
+To:<br>
+${data.endTime}
 
-        }
+`;
+}
 
-        // UPCOMING BOOKING
-        else{
+// OCCUPIED
+else if(data.status === "occupied"){
 
-            slotStatus.classList.remove("booked");
+slotStatus.className = "status occupied";
 
-            slotStatus.classList.add("available");
+slotInfo.innerHTML = `
 
+<strong>OCCUPIED</strong><br><br>
 
-            slotInfo.innerHTML = `
+Vehicle Has Entered Parking Slot
 
-                <strong>AVAILABLE NOW</strong><br><br>
+`;
+}
 
-                Upcoming Booking:<br><br>
+// FREE
+else{
 
-                ${data.bookedBy}<br><br>
+slotStatus.className = "status available";
 
-                ${data.startTime}<br><br>
+slotInfo.innerHTML = "Slot Available";
+}
 
-                TO<br><br>
+}
 
-                ${data.endTime}
+else{
 
-            `;
-        }
+slotStatus.className = "status available";
 
-    }
-
-    else{
-
-        slotStatus.classList.remove("booked");
-
-        slotStatus.classList.add("available");
-
-        slotInfo.innerHTML = "Slot Available";
-
-    }
+slotInfo.innerHTML = "Slot Available";
+}
 
 });
 
